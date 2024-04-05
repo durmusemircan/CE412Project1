@@ -40,10 +40,6 @@ void politicianAgingxCheckAlive();
 
 void fillOffice();
 
-void elections();
-
-void PSIcalc();
-
 void results();
 
 int main() {
@@ -109,7 +105,7 @@ void fillOffice()
         if (p.isLiving && p.office < 3)
         {
             int next = p.office + 1;
-            if (annualPositionFill[next] < pos[next] && p.age <= minAge[next])
+            if (annualPositionFill[next] < pos[next] && p.age >= minAge[next])
             {
                 p.office = next;
                 annualPositionFill[next]++;

@@ -33,11 +33,17 @@ struct Politician {
 vector<Politician> politicians;
 
 void initPolitician();
+
 void simYear();
+
 void politicianAgingxCheckAlive();
+
 void fillOffice();
+
 void elections();
+
 void PSIcalc();
+
 void results();
 
 int main() {
@@ -50,4 +56,99 @@ int main() {
 
     results();
     return 0;
+}
+
+void initPolitician()
+{
+    for(int i=0; i<4; ++i)
+    {
+        for(int j=0; j < pos[i]; ++j)
+        {
+            politicians.push_back(Politician(minAge[i]+j%5));
+            politicians.back().office = i;
+            age_distrubitons[i].push_back(politicians.back().age);
+            candidates[i]++;
+        }
+    }
+}
+
+void simYear()
+{
+    int newCand = round(new_cand_dist(gen));
+    for(int i=0; i< newCand; ++i)
+    {
+        politicians.emplace_back(25);
+    }
+
+    politicianAgingxCheckAlive();
+    fillOffice();
+}
+
+void politicianAgingxCheckAlive()
+{
+    for( auto i = politicians.begin(); i != politicians.end();)
+    {
+        i->age++;
+        if(i->age > i->lifeExpect)
+        {
+            i= politicians.erase(i);
+        } else {
+            ++i;
+        }
+
+        
+    }
+}
+
+void fillOffice()
+{
+    vector<int> annualPositionFill(4, 0);
+
+    for(auto& p: politicians)
+    {
+        if (p.isLiving && p.office < 3)
+        {
+            int next = p.office + 1;
+            if (annualPositionFill[next] < pos[next] && p.age <= minAge[next])
+            {
+                p.office = next;
+                annualPositionFill[next]++;
+                candidates[next]++;
+                age_distrubitons[next].push_back(p.age);
+            }
+            
+        }
+        
+    }
+
+    for(int i=0; i<4; ++i)
+    {
+        int empty = pos[i]-annualPositionFill[i];
+        if(empty >0)
+        {
+            PSI -= empty * 5;
+        }
+    }
+}
+
+void results()
+{
+    cout << "PSI:" << PSI << endl << endl;
+    cout << "Annual Fill Rate:" << endl;
+    for(int i=0; i<4; ++i)
+    {
+        double fillRate = 100.0 * candidates[i] / (pos[i]*year);
+        cout << officeNames[i] << ": "<< fillRate << "%" <<endl;
+    }
+
+    cout << endl <<"Age Distribution:" << endl;
+    for(int i=0; i<4; ++i)
+    {
+        if (!age_distrubitons[i].empty())
+        {
+            double avgAge = accumulate(age_distrubitons[i].begin(), age_distrubitons[i].end(), 0.0) / age_distrubitons[i].size();
+            cout << officeNames[i] << " Average Age: " << avgAge << endl;
+        }
+        
+    }
 }
